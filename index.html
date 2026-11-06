@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scratch Coding Quest - Kuis Interaktif</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap');
+        
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #4c1d95 0%, #1e1b4b 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .heading-font {
+            font-family: 'Fredoka', cursive;
+        }
+
+        .scratch-orange {
+            background-color: #ffbf00;
+        }
+
+        .scratch-blue {
+            background-color: #4c97ff;
+        }
+
+        .scratch-purple {
+            background-color: #9966ff;
+        }
+
+        .scratch-green {
+            background-color: #59c059;
+        }
+
+        .scratch-card {
+            background: rgba(30, 27, 75, 0.75);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 191, 0, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-touch {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.15s ease-in-out;
+        }
+        .btn-touch:active {
+            transform: scale(0.96);
+        }
+
+        /* Scratch Block Mock Styles */
+        .scratch-block {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-block;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-3 sm:p-6">
+
+    <!-- Header Section -->
+    <header class="w-full max-w-3xl flex justify-between items-center mb-4 px-2">
+        <div class="flex items-center gap-2">
+            <div class="w-10 h-10 rounded-full scratch-orange flex items-center justify-center text-slate-900 font-bold text-xl shadow-lg">
+                🐱
+            </div>
+            <div>
+                <h1 class="heading-font text-xl sm:text-2xl text-yellow-400 font-bold tracking-wide">
+                    SCRATCH CODING QUEST
+                </h1>
+                <p class="text-xs text-purple-200">Kuis Interaktif Pemrograman Scratch</p>
+            </div>
+        </div>
+        <button id="fullscreenBtn" class="bg-purple-800 hover:bg-purple-700 text-yellow-300 border border-yellow-400 text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1 shadow-md">
+            <span>⛶</span> <span class="hidden sm:inline">Layar Penuh</span>
+        </button>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-3xl">
+
+        <!-- STEP 1: Registration Form -->
+        <div id="stepRegistration" class="scratch-card rounded-3xl p-6 sm:p-8 text-center">
+            <h2 class="heading-font text-2xl sm:text-3xl text-yellow-400 mb-2">Selamat Datang Coder! 🚀</h2>
+            <p class="text-xs sm:text-sm text-slate-300 mb-6">Masukkan data diri Anda sebelum memulai misi kuis Scratch.</p>
+            
+            <form id="studentForm" class="max-w-md mx-auto space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-yellow-400 mb-1" for="studentName">NAMA LENGKAP:</label>
+                    <input type="text" id="studentName" placeholder="Contoh: Budi Pratama" class="w-full bg-slate-900/80 border-2 border-purple-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-400" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-yellow-400 mb-1" for="studentClass">KELAS / KELOMPOK:</label>
+                    <input type="text" id="studentClass" placeholder="Contoh: 7-A / Informatika" class="w-full bg-slate-900/80 border-2 border-purple-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-400" required>
+                </div>
+
+                <!-- Rules Box -->
+                <div class="bg-purple-950/60 border border-purple-400/40 rounded-xl p-3 text-xs text-purple-200 space-y-1">
+                    <p class="font-bold text-yellow-300">📋 ATURAN MAIN & FORMAT SOAL:</p>
+                    <p>• Total 5 Soal: Pilihan Ganda (2), Mencocokkan Kode (2), dan Isian (1).</p>
+                    <p>• Pilih atau ketik jawaban dengan teliti pada layar PID atau Canva!</p>
+                </div>
+
+                <button type="submit" class="btn-touch w-full scratch-orange hover:bg-yellow-400 text-slate-900 font-bold heading-font text-lg py-3.5 rounded-xl shadow-lg mt-4">
+                    MULAI MISI KUIS ➔
+                </button>
+            </form>
+        </div>
+
+        <!-- STEP 2: Active Quiz Container -->
+        <div id="stepQuiz" class="scratch-card rounded-3xl p-5 sm:p-8 hidden">
+            <!-- Progress Bar & Info Header -->
+            <div class="flex flex-wrap justify-between items-center gap-2 border-b border-purple-500/40 pb-4 mb-5">
+                <div>
+                    <span id="studentDisplay" class="bg-purple-900/80 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-purple-500">
+                        Siswa: --
+                    </span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="questionCounter" class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">
+                        Soal 1 dari 5
+                    </span>
+                    <span id="scoreDisplay" class="bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">
+                        Skor: 0
+                    </span>
+                </div>
+            </div>
+
+            <!-- Question Card Header -->
+            <div class="mb-4">
+                <span id="questionTypeBadge" class="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md mb-2">
+                    Pilihan Ganda
+                </span>
+                <h3 id="questionTitle" class="text-base sm:text-lg font-bold text-white leading-relaxed">
+                    Pertanyaan akan muncul di sini...
+                </h3>
+            </div>
+
+            <!-- Dynamic Question Content -->
+            <div id="questionBody" class="min-h-[220px] mb-6">
+                <!-- Injected via Javascript -->
+            </div>
+
+            <!-- Feedback Message -->
+            <div id="feedbackBox" class="min-h-[40px] text-center font-bold text-sm sm:text-base mb-4 flex items-center justify-center rounded-xl p-2"></div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-3 pt-2 border-t border-purple-500/30">
+                <button id="nextBtn" class="btn-touch scratch-green hover:bg-green-500 text-slate-950 font-bold heading-font px-6 py-3 rounded-xl shadow-lg text-sm hidden">
+                    SOAL BERIKUTNYA ➔
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Result / End Screen -->
+        <div id="stepResult" class="scratch-card rounded-3xl p-6 sm:p-8 text-center hidden">
+            <div class="w-20 h-20 scratch-orange rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-xl">
+                🏆
+            </div>
+            <h2 class="heading-font text-2xl sm:text-3xl text-yellow-400 mb-2">MISI SELESAI!</h2>
+            <p class="text-xs sm:text-sm text-slate-300 mb-6">Hasil evaluasi kuis Scratch kamu:</p>
+
+            <div class="bg-slate-900/80 border border-purple-500/50 rounded-2xl p-5 max-w-md mx-auto mb-6 text-left space-y-2 text-sm">
+                <div class="flex justify-between border-b border-purple-800 pb-2">
+                    <span class="text-slate-400">Nama Siswa:</span>
+                    <span id="resultName" class="font-bold text-white">--</span>
+                </div>
+                <div class="flex justify-between border-b border-purple-800 pb-2">
+                    <span class="text-slate-400">Kelas:</span>
+                    <span id="resultClass" class="font-bold text-white">--</span>
+                </div>
+                <div class="flex justify-between border-b border-purple-800 pb-2">
+                    <span class="text-slate-400">Jawaban Benar:</span>
+                    <span id="resultCorrect" class="font-bold text-green-400">0 / 5</span>
+                </div>
+                <div class="flex justify-between pt-1">
+                    <span class="text-slate-400">Total Skor:</span>
+                    <span id="resultScore" class="font-bold text-yellow-400 text-lg">0 Poin</span>
+                </div>
+            </div>
+
+            <button id="restartBtn" class="btn-touch scratch-blue hover:bg-blue-500 text-white font-bold heading-font text-base px-8 py-3.5 rounded-xl shadow-lg">
+                🔄 ULANGI KUIS
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Web Audio FX -->
+    <script>
+        class SoundFX {
+            constructor() { this.ctx = null; }
+            init() {
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+            }
+            playCorrect() {
+                if (!this.ctx) return;
+                let now = this.ctx.currentTime;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(now); osc.stop(now + 0.35);
+            }
+            playWrong() {
+                if (!this.ctx) return;
+                let now = this.ctx.currentTime;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(now); osc.stop(now + 0.25);
+            }
+        }
+        const sfx = new SoundFX();
+    </script>
+
+    <!-- Quiz Engine Script -->
+    <script>
+        // Data 5 Soal Asesmen Scratch
+        const quizData = [
+            {
+                id: 1,
+                type: 'mcq',
+                typeLabel: 'Pilihan Ganda',
+                question: "Manakah blok kode Scratch yang digunakan untuk menjalankan perintah skrip secara terus-menerus tanpa henti?",
+                options: [
+                    "selamanya (forever)",
+                    "ulangi 10 kali (repeat 10)",
+                    "jika... maka (if... then)",
+                    "tunggu 1 detik (wait 1 secs)"
+                ],
+                correct: 0
+            },
+            {
+                id: 2,
+                type: 'mcq',
+                typeLabel: 'Pilihan Ganda',
+                question: "Untuk mengubah posisi Sprite bergerak meluncur secara halus ke posisi titik koordinat tertentu, kita menggunakan blok...",
+                options: [
+                    "pergi ke x: ... y: ...",
+                    "meluncur ... detik ke x: ... y: ...",
+                    "ubah x sebesar 10",
+                    "mengarah ke arah 90"
+                ],
+                correct: 1
+            },
+            {
+                id: 3,
+                type: 'matching',
+                typeLabel: 'Mencocokkan Kode',
+                question: "Cocokkan nama kategori warna blok Scratch di sebelah kiri dengan fungsinya yang sesuai di sebelah kanan!",
+                pairs: [
+                    { 
+                        key: "Gerakan (Biru)", 
+                        options: ["Mengontrol gerakan & posisi sprite", "Menangani sensor sentuhan & tombol", "Menjalankan musik dan efek suara"], 
+                        correct: "Mengontrol gerakan & posisi sprite" 
+                    },
+                    { 
+                        key: "Sensor (Biru Muda)", 
+                        options: ["Menangani sensor sentuhan & tombol", "Mengontrol gerakan & posisi sprite", "Menjalankan musik dan efek suara"], 
+                        correct: "Menangani sensor sentuhan & tombol" 
+                    },
+                    { 
+                        key: "Suara (Ungu)", 
+                        options: ["Menjalankan musik dan efek suara", "Mengontrol gerakan & posisi sprite", "Menangani sensor sentuhan & tombol"], 
+                        correct: "Menjalankan musik dan efek suara" 
+                    }
+                ]
+            },
+            {
+                id: 4,
+                type: 'matching',
+                typeLabel: 'Mencocokkan Kode',
+                question: "Pasangkan blok perintah kejadian (Events) berikut dengan aksi yang dihasilkannya saat dimainkan!",
+                pairs: [
+                    { 
+                        key: "ketika bendera hijau diklik", 
+                        options: ["Memulai skrip utama program", "Merespon saat sprite disentuh mouse/jari", "Meneruskan sinyal pesan ke sprite lain"], 
+                        correct: "Memulai skrip utama program" 
+                    },
+                    { 
+                        key: "ketika sprite ini diklik", 
+                        options: ["Merespon saat sprite disentuh mouse/jari", "Memulai skrip utama program", "Meneruskan sinyal pesan ke sprite lain"], 
+                        correct: "Merespon saat sprite disentuh mouse/jari" 
+                    },
+                    { 
+                        key: "siarkan [pesan]", 
+                        options: ["Meneruskan sinyal pesan ke sprite lain", "Memulai skrip utama program", "Merespon saat sprite disentuh mouse/jari"], 
+                        correct: "Meneruskan sinyal pesan ke sprite lain" 
+                    }
+                ]
+            },
+            {
+                id: 5,
+                type: 'fill_in',
+                typeLabel: 'Isian Singkat',
+                question: "Ketik nama blok Scratch yang berfungsi untuk menambah atau mengurangi nilai angka suatu variabel (contoh: nilai skor):",
+                correctAnswers: ["ubah", "ubah sebesar", "change", "change variable by", "ubah variabel sebesar"]
+            }
+        ];
+
+        let studentInfo = { name: '', class: '' };
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctCount = 0;
+
+        // DOM Elements
+        const stepRegistration = document.getElementById('stepRegistration');
+        const stepQuiz = document.getElementById('stepQuiz');
+        const stepResult = document.getElementById('stepResult');
+        const studentForm = document.getElementById('studentForm');
+
+        const studentDisplay = document.getElementById('studentDisplay');
+        const questionCounter = document.getElementById('questionCounter');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const questionTypeBadge = document.getElementById('questionTypeBadge');
+        const questionTitle = document.getElementById('questionTitle');
+        const questionBody = document.getElementById('questionBody');
+        const feedbackBox = document.getElementById('feedbackBox');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // Form Registration Submit
+        studentForm.onsubmit = (e) => {
+            e.preventDefault();
+            sfx.init();
+
+            studentInfo.name = document.getElementById('studentName').value.trim();
+            studentInfo.class = document.getElementById('studentClass').value.trim();
+
+            if (!studentInfo.name || !studentInfo.class) return;
+
+            studentDisplay.innerText = `Siswa: ${studentInfo.name} (${studentInfo.class})`;
+            
+            stepRegistration.classList.add('hidden');
+            stepQuiz.classList.remove('hidden');
+
+            currentQuestionIndex = 0;
+            score = 0;
+            correctCount = 0;
+
+            loadQuestion();
+        };
+
+        // Load Question Dynamic Renderer
+        function loadQuestion() {
+            const q = quizData[currentQuestionIndex];
+            
+            questionCounter.innerText = `Soal ${currentQuestionIndex + 1} dari ${quizData.length}`;
+            scoreDisplay.innerText = `Skor: ${score}`;
+            questionTitle.innerText = q.question;
+
+            // Set Type Badge
+            questionTypeBadge.innerText = q.typeLabel;
+            if (q.type === 'mcq') questionTypeBadge.className = "inline-block text-[10px] sm:text-xs font-bold uppercase px-2.5 py-1 rounded-md mb-2 bg-blue-600 text-white";
+            else if (q.type === 'matching') questionTypeBadge.className = "inline-block text-[10px] sm:text-xs font-bold uppercase px-2.5 py-1 rounded-md mb-2 bg-purple-600 text-white";
+            else if (q.type === 'fill_in') questionTypeBadge.className = "inline-block text-[10px] sm:text-xs font-bold uppercase px-2.5 py-1 rounded-md mb-2 bg-amber-600 text-white";
+
+            questionBody.innerHTML = '';
+            feedbackBox.innerHTML = '';
+            feedbackBox.className = "min-h-[40px] text-center font-bold text-sm sm:text-base mb-4 flex items-center justify-center rounded-xl p-2";
+            nextBtn.classList.add('hidden');
+
+            // Render Body based on type
+            if (q.type === 'mcq') {
+                renderMCQ(q);
+            } else if (q.type === 'matching') {
+                renderMatching(q);
+            } else if (q.type === 'fill_in') {
+                renderFillIn(q);
+            }
+        }
+
+        // 1. Render Pilihan Ganda
+        function renderMCQ(q) {
+            const container = document.createElement('div');
+            container.className = "grid grid-cols-1 gap-3";
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "btn-touch w-full text-left bg-slate-900/80 hover:bg-purple-900/80 border border-purple-500/50 rounded-2xl p-4 flex items-center gap-3 text-sm text-white font-medium";
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-full scratch-orange text-slate-950 font-bold flex items-center justify-center text-xs shrink-0">${String.fromCharCode(65 + idx)}</span>
+                    <span class="leading-relaxed">${opt}</span>
+                `;
+                btn.onclick = () => handleMCQSubmit(idx, q.correct, container);
+                container.appendChild(btn);
+            });
+
+            questionBody.appendChild(container);
+        }
+
+        function handleMCQSubmit(selected, correct, container) {
+            const btns = container.querySelectorAll('button');
+            btns.forEach(b => b.disabled = true);
+
+            if (selected === correct) {
+                btns[selected].classList.add('border-green-500', 'bg-green-950/80');
+                showFeedback(true, "Jawaban Benar! +20 Poin");
+                score += 20;
+                correctCount++;
+            } else {
+                btns[selected].classList.add('border-red-500', 'bg-red-950/80');
+                btns[correct].classList.add('border-green-500', 'bg-green-950/40');
+                showFeedback(false, `Jawaban Kurang Tepat! Jawaban benar: (${String.fromCharCode(65 + correct)}) ${quizData[currentQuestionIndex].options[correct]}`);
+            }
+            scoreDisplay.innerText = `Skor: ${score}`;
+            nextBtn.classList.remove('hidden');
+        }
+
+        // 2. Render Mencocokkan Kode
+        function renderMatching(q) {
+            const container = document.createElement('div');
+            container.className = "space-y-3";
+
+            q.pairs.forEach((pair, idx) => {
+                const row = document.createElement('div');
+                row.className = "flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-slate-900/80 p-3 rounded-2xl border border-purple-500/40";
+                
+                const label = document.createElement('div');
+                label.className = "text-xs font-bold text-yellow-300 w-full sm:w-5/12";
+                label.innerHTML = `<span class="scratch-block scratch-blue text-white mr-1.5">${idx + 1}</span> ${pair.key}`;
+
+                const select = document.createElement('select');
+                select.className = "matching-select w-full sm:w-7/12 bg-slate-950 text-white border border-purple-500 rounded-xl p-2.5 text-xs focus:outline-none focus:border-yellow-400";
+                select.dataset.correct = pair.correct;
+
+                let defaultOpt = document.createElement('option');
+                defaultOpt.value = "";
+                defaultOpt.innerText = "-- Pilih Pasangan Fungsi --";
+                select.appendChild(defaultOpt);
+
+                pair.options.forEach(opt => {
+                    let o = document.createElement('option');
+                    o.value = opt;
+                    o.innerText = opt;
+                    select.appendChild(o);
+                });
+
+                row.appendChild(label);
+                row.appendChild(select);
+                container.appendChild(row);
+            });
+
+            const checkBtn = document.createElement('button');
+            checkBtn.className = "btn-touch w-full scratch-orange hover:bg-yellow-400 text-slate-950 font-bold heading-font py-3 rounded-xl mt-4 text-sm";
+            checkBtn.innerText = "PERIKSA HASIL COCOK KODE";
+            checkBtn.onclick = () => handleMatchingSubmit(container, checkBtn);
+
+            questionBody.appendChild(container);
+            questionBody.appendChild(checkBtn);
+        }
+
+        function handleMatchingSubmit(container, checkBtn) {
+            const selects = container.querySelectorAll('.matching-select');
+            let allSelected = true;
+            let isCorrect = true;
+
+            selects.forEach(s => {
+                if (!s.value) allSelected = false;
+                if (s.value !== s.dataset.correct) isCorrect = false;
+            });
+
+            if (!allSelected) {
+                alert("Harap pilih semua pasangan kode terlebih dahulu!");
+                return;
+            }
+
+            selects.forEach(s => s.disabled = true);
+            checkBtn.disabled = true;
+            checkBtn.classList.add('opacity-50');
+
+            if (isCorrect) {
+                showFeedback(true, "Hebat! Semua Pasangan Kode Cocok secara Tepat! +20 Poin");
+                score += 20;
+                correctCount++;
+            } else {
+                showFeedback(false, "Pasangan Kode Masih Ada Yang Belum Tepat.");
+            }
+
+            scoreDisplay.innerText = `Skor: ${score}`;
+            nextBtn.classList.remove('hidden');
+        }
+
+        // 3. Render Isian Singkat
+        function renderFillIn(q) {
+            const container = document.createElement('div');
+            container.className = "space-y-4 max-w-md mx-auto py-2";
+
+            const input = document.createElement('input');
+            input.type = "text";
+            input.id = "fillInput";
+            input.placeholder = "Ketikkan kata/blok di sini (Contoh: ubah / change)...";
+            input.className = "w-full bg-slate-900 border-2 border-purple-500 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-yellow-400 text-center font-bold";
+
+            const submitBtn = document.createElement('button');
+            submitBtn.className = "btn-touch w-full scratch-orange hover:bg-yellow-400 text-slate-950 font-bold heading-font py-3 rounded-xl text-sm";
+            submitBtn.innerText = "KIRIM JAWABAN ISIAN";
+            submitBtn.onclick = () => handleFillInSubmit(input, submitBtn, q.correctAnswers);
+
+            container.appendChild(input);
+            container.appendChild(submitBtn);
+            questionBody.appendChild(container);
+        }
+
+        function handleFillInSubmit(input, submitBtn, validAnswers) {
+            const val = input.value.trim().toLowerCase();
+            if (!val) {
+                alert("Ketikkan jawaban terlebih dahulu!");
+                return;
+            }
+
+            input.disabled = true;
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50');
+
+            const isCorrect = validAnswers.some(ans => val.includes(ans.toLowerCase()));
+
+            if (isCorrect) {
+                showFeedback(true, "Jawaban Isian Tepat! +20 Poin");
+                score += 20;
+                correctCount++;
+            } else {
+                showFeedback(false, `Jawaban Kurang Tepat! Kunci Jawaban: '${validAnswers[0]} / ${validAnswers[1]}'`);
+            }
+
+            scoreDisplay.innerText = `Skor: ${score}`;
+            nextBtn.classList.remove('hidden');
+        }
+
+        // Helper Feedback Renderer
+        function showFeedback(isSuccess, message) {
+            if (isSuccess) {
+                feedbackBox.className = "min-h-[40px] text-center font-bold text-sm sm:text-base mb-4 flex items-center justify-center rounded-xl p-2 bg-green-950/80 border border-green-500 text-green-300";
+                sfx.playCorrect();
+            } else {
+                feedbackBox.className = "min-h-[40px] text-center font-bold text-sm sm:text-base mb-4 flex items-center justify-center rounded-xl p-2 bg-red-950/80 border border-red-500 text-red-300";
+                sfx.playWrong();
+            }
+            feedbackBox.innerText = message;
+        }
+
+        // Next Button Handler
+        nextBtn.onclick = () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        };
+
+        // Finish Quiz & Show Result Screen
+        function finishQuiz() {
+            stepQuiz.classList.add('hidden');
+            stepResult.classList.remove('hidden');
+
+            document.getElementById('resultName').innerText = studentInfo.name;
+            document.getElementById('resultClass').innerText = studentInfo.class;
+            document.getElementById('resultCorrect').innerText = `${correctCount} / ${quizData.length}`;
+            document.getElementById('resultScore').innerText = `${score} Poin`;
+        }
+
+        // Restart Quiz Button
+        document.getElementById('restartBtn').onclick = () => {
+            stepResult.classList.add('hidden');
+            stepRegistration.classList.remove('hidden');
+            studentForm.reset();
+        };
+
+        // Fullscreen Toggle Button
+        document.getElementById('fullscreenBtn').onclick = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        };
+    </script>
+</body>
+</html>
